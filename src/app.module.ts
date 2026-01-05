@@ -24,7 +24,9 @@ import { config } from 'dotenv';
       useFactory : (config : ConfigService) => ({
         type : 'postgres',
         host : config.get<string>('DB_HOST'),
-        port : config.get<number>('DB_PORT')
+        port : config.get<number>('DB_PORT'),
+        password : config.get<string>('DB_PASSWORD'),
+        username : config.get<string>('DB_USERNAME'),
       })
     })
   ],
