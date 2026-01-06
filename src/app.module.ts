@@ -6,17 +6,20 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as joi from 'joi'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { config } from 'dotenv';
+import { users } from './Entity/db.entity';
 
 @Module({
   imports: [UsersModule,
     ConfigModule.forRoot({
       isGlobal : true,
+      // envFilePath : '.env',
       validationSchema : joi.object({
         DB_HOST : joi.string().required(),
         DB_PORT: joi.number().required(),
         DB_USERNAME: joi.string().required(),
-        DB_PASSWORD: joi.string().required()
+        DB_PASSWORD: joi.string().required(),
+        DB_NAME : joi.string().required(),
+        APP_PORT : joi.number().required()
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -27,6 +30,8 @@ import { config } from 'dotenv';
         port : config.get<number>('DB_PORT'),
         password : config.get<string>('DB_PASSWORD'),
         username : config.get<string>('DB_USERNAME'),
+        database : config.get<string>('DB_NAME'),
+        entities : [users]
       })
     })
   ],
