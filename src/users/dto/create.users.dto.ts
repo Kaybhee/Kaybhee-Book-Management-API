@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, Length, Matches } from "class-validator";
 
 
 
@@ -13,6 +13,13 @@ export class userCreationDTO {
 
     @IsNotEmpty({ message : "password is required"})
     @IsString({ message : "Password must be a string"})
+    @Length(8, 20)
+    @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/,
+        {
+            message : 'Password must contain uppercase, lowercase, number, and special character'
+        }
+
+    )
     password : string
 
 } 
