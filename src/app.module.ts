@@ -6,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as joi from 'joi'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { users } from './Entity/db.entity';
+import { User } from './Entity/db.entity';
 
 @Module({
   imports: [UsersModule,
@@ -19,7 +19,9 @@ import { users } from './Entity/db.entity';
         DB_USERNAME: joi.string().required(),
         DB_PASSWORD: joi.string().required(),
         DB_NAME : joi.string().required(),
-        APP_PORT : joi.number().required()
+        APP_PORT : joi.number().required(),
+        BREVO_API : joi.string().required(),
+        JWT_SECRET : joi.string().required()
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -31,7 +33,7 @@ import { users } from './Entity/db.entity';
         password : config.get<string>('DB_PASSWORD'),
         username : config.get<string>('DB_USERNAME'),
         database : config.get<string>('DB_NAME'),
-        entities : [users]
+        entities : [User]
       })
     })
   ],
