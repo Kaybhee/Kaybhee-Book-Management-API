@@ -22,4 +22,7 @@ export class userCreationDTO {
     )
     password : string
 
+
+    // isVerified: Boolean
+
 } 
