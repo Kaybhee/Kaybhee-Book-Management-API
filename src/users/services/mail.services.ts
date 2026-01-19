@@ -8,7 +8,7 @@ dotenv.config()
 @Injectable()
 export class SendMailService {
     constructor(private mailConfig : ConfigService) {};
-    async sendEmail(to : string, data : { message: string; subject: string }): Promise<any> {
+    async sendEmail(to : string, data : { message: string; subject: string }): Promise<string> {
     const htmlTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -37,12 +37,12 @@ export class SendMailService {
             "https://api.brevo.com/v3/smtp/email",
             {
                 sender : {
-                email : this.mailConfig.get<string>('USER_MAIL'),
-                name : "Book App" 
+                    email : this.mailConfig.get<string>('USER_MAIL'),
+                    name : "Book App" 
                 },
-            to : [{ email : to }],
-            subject : data.subject || "Book Castro",
-            html : htmlTemplate
+                to : [{ email : to }],
+                subject : data.subject || "Book Castro",
+                htmlContent : htmlTemplate
             },
             {
                 headers : {
@@ -51,10 +51,13 @@ export class SendMailService {
                 }
             }
         )
-        return getLink
-
+        console.log("Email sent successfully:", getLink.data)
+        // return true;
+        return getLink.data
     } catch(error) {
-        console.error(error)
+        console.error("Brevo email error:", error.response?.data || error.message)
+        // return false;
+        return "Email error"
     }
 }
 }
