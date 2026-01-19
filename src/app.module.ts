@@ -33,11 +33,12 @@ import { User } from './Entity/db.entity';
         password : config.get<string>('DB_PASSWORD'),
         username : config.get<string>('DB_USERNAME'),
         database : config.get<string>('DB_NAME'),
-        entities : [User]
+        entities : [User],
+        synchronize : true
       })
-    })
+    }),
   ],
-  controllers: [AppController, UsersController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
