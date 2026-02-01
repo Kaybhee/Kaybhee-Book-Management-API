@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, Length } from "class-validator";
 
 
-export class VerifyUser {
+export class VerifyUserDto {
     @IsNotEmpty({ message : "The email field cannot be left empty"})
     @IsString({ message : "The email must be a string"})
     email : string
