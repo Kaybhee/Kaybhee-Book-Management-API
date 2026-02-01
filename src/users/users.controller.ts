@@ -1,9 +1,10 @@
 import { Controller, HttpCode, HttpStatus, Post, Body } from '@nestjs/common';
 import { userCreationDTO } from './dto/create.users.dto';
-import { User } from '../Entity/db.entity'
+import { User } from '../Entity/db.userEntity'
 import { UsersService } from './users.service';
-import { VerifyUser } from './dto/verify.users.dto';
+import { VerifyUserDto } from './dto/verify.users.dto';
 import { UserLogin } from './dto/user.login.dto';
+import { ResendUserOtpDto } from './dto/resend-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -16,9 +17,17 @@ export class UsersController {
         return this.UsersServ.userCreation(userCred)
     }
 
+    @Post('resend-user')
+    @HttpCode(HttpStatus.OK)
+    resendUser(@Body() resend: ResendUserOtpDto): Promise<any> {
+        const email = this.UsersServ.resendUserOtp(resend)
+        return email
+    }
+
+
     @Post('verify-email')
     @HttpCode(HttpStatus.OK)
-    verifyUserEmail(@Body() verify: VerifyUser): Promise<any> {
+    verifyUserEmail(@Body() verify: VerifyUserDto): Promise<any> {
         return this.UsersServ.verifyUserEmail(verify)
     }
 

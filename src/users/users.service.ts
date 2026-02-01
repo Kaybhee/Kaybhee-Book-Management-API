@@ -1,7 +1,7 @@
-import { HttpCode, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Code, Repository } from 'typeorm'
-import { User } from 'src/Entity/db.entity';
+import { User } from 'src/Entity/db.userEntity';
 import * as bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import NodeCache from 'node-cache';
@@ -10,10 +10,11 @@ import { ConfigService } from '@nestjs/config';
 import { SendMailService } from './services/mail.services';
 import { hashPass, verifyUserPassword } from './services/password.services';
 import { userCreationDTO } from './dto/create.users.dto';
-import { VerifyUser } from './dto/verify.users.dto';
-import { signUser } from './services/token.services';
+import { VerifyUserDto } from './dto/verify.users.dto';
+import { JwtService } from '@nestjs/jwt';
 import { UserLogin } from './dto/user.login.dto';
 import { console } from 'inspector';
+import { ResendUserOtpDto } from './dto/resend-user.dto';
 // import { sendMail } from './services/mail.services';
 dotenv.config()
 const cache = new NodeCache()
@@ -24,7 +25,7 @@ export class UsersService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         private readonly mailService: SendMailService,
-        private readonly tokenService : signUser
+        private readonly jwtService : JwtService
     ) {}
 
 
@@ -66,11 +67,11 @@ export class UsersService {
                     `
                 }
             )
-            }
             return {
                 message : "User created successfully",
                 data : user,
                 code
+            }
             }
     }
     catch (err) {
@@ -82,8 +83,9 @@ export class UsersService {
     }
 }
 
-async verifyUserEmail( userVerification : VerifyUser) {
-    const userEmail = await this.userRepository.findOne({
+async verifyUserEmail( userVerification : VerifyUserDto) {
+    try {
+        const userEmail = await this.userRepository.findOne({
         where :
         {email : userVerification.email}
     })
@@ -115,8 +117,47 @@ async verifyUserEmail( userVerification : VerifyUser) {
         message : "User verified successfully",
         data : isSaved
     }
-
+    } catch (err) {
+        return {
+            status: HttpStatus.BAD_GATEWAY
+        }
+    }
 }
+    
+
+async resendUserOtp( resendUser: ResendUserOtpDto) {
+    const user = await this.userRepository.findOne({
+        where: { email: resendUser.email}
+    })
+
+    if (!user){
+        throw new NotFoundException("This user does not exist")
+    }
+
+    const code = Math.ceil(10000 + Math.random() * 900000)
+    cache.set<string>(resendUser.email, code.toString(), 3600000);
+    if(!user.isVerified){
+        await this.mailService.sendEmail(user.email,
+                {
+                    subject : "User Confirmation – Books",
+                    message : `
+                    Kindly verify your account using the OTP this code - ${code}`
+                }
+            )
+            return {
+                status: HttpStatus.OK,
+                message : "User created successfully",
+                data : user,
+                code
+            }
+            }
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: "User already verified, proceed to login",
+                data: null
+            }    
+    }
+
 
 async userLogin(loginCred : UserLogin) {
     const user = await this.userRepository.findOne({ where : {email : loginCred.email}})
@@ -130,9 +171,9 @@ async userLogin(loginCred : UserLogin) {
     }
     const match = await verifyUserPassword(loginCred.password, user.password)
     console.log("The input password", loginCred.password)
-    console.log("This is the oassword to this account",user.password)
+    console.log("This is the password to this account",user.password)
     if(!match) {
-        throw new Error("The password is incorrect")
+        throw new UnauthorizedException("The password is incorrect")
     }
     
     if (!user.isVerified) {
@@ -158,20 +199,18 @@ async userLogin(loginCred : UserLogin) {
         }
     }
     
-    const userToken = await this.tokenService.userSignInToken(user)
-    // console.log(user)
+    const payload = { email: user.email, sub: user.id, role: user.role}
+    const _data = await this.jwtService.signAsync(payload)
+    console.log("The encoded payload", _data)
     return {
         status : HttpStatus.OK,
         message : "User logged in Successfully",
         data : {
-            user, token : userToken
-
+            user, token : _data
         }
     }
 
-}
-
-     
+}     
 }
 
 
