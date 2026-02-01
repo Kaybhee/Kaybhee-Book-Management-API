@@ -6,7 +6,9 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as joi from 'joi'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './Entity/db.entity';
+import { User } from './Entity/db.userEntity';
+import { BookModule } from './book/book.module';
+import { Books } from './Entity/db.bookEntity';
 
 @Module({
   imports: [UsersModule,
@@ -33,10 +35,11 @@ import { User } from './Entity/db.entity';
         password : config.get<string>('DB_PASSWORD'),
         username : config.get<string>('DB_USERNAME'),
         database : config.get<string>('DB_NAME'),
-        entities : [User],
-        synchronize : true
+        entities : [User, Books],
+        synchronize : false
       })
     }),
+    BookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
