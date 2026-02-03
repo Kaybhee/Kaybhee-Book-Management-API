@@ -43,8 +43,8 @@ export class BookService {
                     Title: createBooks.Title,
                     Author: createBooks.Author,
                     Edition : createBooks.Edition,
-                    Publisher : createBooks.Publisher
-                    // Genre : createBooks.Genre
+                    Publisher : createBooks.Publisher,
+                    Genre : createBooks.Genre
                 })
                 const savedbooks = await this.bookRepository.save(books)
                 return {
@@ -65,13 +65,14 @@ export class BookService {
                 Title: createBooks.Title,
                 Author: createBooks.Author,
                 Edition : createBooks.Edition,
-                Genre : createBooks.Genre
+                Genre : createBooks.Genre,
+                Publisher : createBooks.Publisher
             })
 
             const savedbooks = await this.bookRepository.save(books)
             return {
                 status: HttpStatus.CREATED,
-                message: `Book with the serial no "${createBooks.ISBN}" and the author "${createBooks.Author}" has been created`,
+                message: `Book with the serial no ${createBooks.ISBN} and the author ${createBooks.Author} has been created`,
                 data: savedbooks
             }
         } catch (err) {
@@ -103,12 +104,13 @@ export class BookService {
         return paginate<Books>(this.bookRepository, options)
     }
 
-    async getABook(id : number, updateContent : updateBookContentDto, Title?: string, ISBN?: string, Author?: string): Promise<any> {
+    async updateBook(id : number, updateContent : updateBookContentDto, Title?: string, ISBN?: string, Author?: string): Promise<any> {
         
         try{
-            const existingAuthor = await this.bookRepository.findOneBy([{Title}, {ISBN}, {Author}])
+            // const existingAuthor = await this.bookRepository.findOneBy([{Title}, {ISBN}, {Author}])
+            const existingAuthor = Title || ISBN || Author
             if (existingAuthor) {
-                throw new ForbiddenException()
+                throw new ForbiddenException("You are not allowed to do that")
             }
             const bookIndex = await this.bookRepository.findOneBy({id})
             if (!bookIndex) {
@@ -127,4 +129,14 @@ export class BookService {
             throw new InternalServerErrorException()
         }
     }
+
+    async getABook(id : number): Promise<Books> {
+        const book = await this.bookRepository.findOneBy({id})
+        if (!book) {
+            throw new NotFoundException(`The Id ${id} does not exist`)
+        }
+        return book
+    }
+
+    async 
 }
