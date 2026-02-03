@@ -12,5 +12,4 @@ export class updateBookContentDto {
     @IsString()
     @IsNotEmpty()
     Publisher ?: string
-
 }
