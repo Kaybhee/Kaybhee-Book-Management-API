@@ -9,7 +9,8 @@ import { PaginationDto } from './book.dto/pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Books } from 'src/Entity/db.bookEntity';
 import { updateBookContentDto } from './book.dto/updateBook.dto';
-import { number } from 'joi';
+
+
 @Controller('book')
 export class BookController {
     constructor( private readonly booksCreation : BookService){}
@@ -34,14 +35,31 @@ export class BookController {
     })
 }
 
-@Put('update')
-async findABook(@Param('id', ParseIntPipe) id : number, @Body()updateContent : updateBookContentDto): Promise<Books | object> {
-    const bookUpdate = await this.booksCreation.getABook(id, updateContent);
+
+@Put('update/:id')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.ADMIN)
+async updateBook(@Param('id', ParseIntPipe) id : number, @Body()updateContent : updateBookContentDto): Promise<Books | object> {
+    const bookUpdate = await this.booksCreation.updateBook(id, updateContent);
     return {
         message: "The books have been successfully updated",
         status: HttpStatus.OK,
         data: bookUpdate
     }
 
+
 }
+
+@Get('a-book/:id')
+async getABook(@Param('id', ParseIntPipe) id: number): Promise<object> {
+    const book = await this.booksCreation.getABook(id)
+    console.log(book);
+    
+    return {
+        message : `The book with Id:${id} has been retrieved`,
+        status : HttpStatus.OK,
+        data : book
+    }
+}
+
 }

@@ -36,7 +36,7 @@ import { Books } from './Entity/db.bookEntity';
         username : config.get<string>('DB_USERNAME'),
         database : config.get<string>('DB_NAME'),
         entities : [User, Books],
-        synchronize : false
+        synchronize : true
       })
     }),
     BookModule,
