@@ -199,7 +199,7 @@ async userLogin(loginCred : UserLogin) {
         }
     }
     
-    const payload = { email: user.email, sub: user.id, role: user.role}
+    const payload = { email: user.email, sub: user.userId, role: user.role}
     const _data = await this.jwtService.signAsync(payload)
     console.log("The encoded payload", _data)
     return {
