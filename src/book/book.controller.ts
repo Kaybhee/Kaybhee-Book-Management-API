@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Query, HttpStatus, Post, UseGuards, DefaultValuePipe, ParseIntPipe, Put, Param } from '@nestjs/common';
+import { Body, Controller, Get, Query, HttpStatus, Post, UseGuards, DefaultValuePipe, ParseIntPipe, Put, Param, Req } from '@nestjs/common';
 import { BookCreationDto } from './book.dto/books.dto';
 import { AuthGuard } from 'src/users/auth.guard';
 import { RolesGuard } from 'src/users/Roles/role.guard';
@@ -9,6 +9,7 @@ import { PaginationDto } from './book.dto/pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Books } from 'src/Entity/db.bookEntity';
 import { updateBookContentDto } from './book.dto/updateBook.dto';
+import { BorrowBooksDto } from './book.dto/borrow.book.dto';
 
 
 @Controller('book')
@@ -62,4 +63,22 @@ async getABook(@Param('id', ParseIntPipe) id: number): Promise<object> {
     }
 }
 
+@Post('borrow-book')
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.USER)
+async borrowBook(@Req() req, @Body() borrowingBooks: BorrowBooksDto): Promise<Books | unknown>{
+    const _borrData = await this.booksCreation.borrowBook(req.user.sub, borrowingBooks)
+    return {
+            status: HttpStatus.OK,
+            message: `Book borrowed successfully, to be returned by ${borrowingBooks.returnDate}`,
+            data: _borrData
+        }
+}
+
+@Post()
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(Role.USER)
+async returnBook(@Req() id: number) {
+    const _returned = await this.returnBook(id)
+}
 }
