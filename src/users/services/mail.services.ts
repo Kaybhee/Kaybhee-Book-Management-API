@@ -20,9 +20,9 @@ export class SendMailService {
     <body>
       <div style="text-align:center;font-family:sans-serif">
         <img src="https://iili.io/389IoWN.jpg" alt="Hotel" height="100" />
-        <h3>Welcome to Ikorodu Hotel Packard</h3>
+        <h3>Welcome to the Book Club</h3>
         <p>${data.message}</p>
-        <p>Thanks,<br />Ikorodu Hotel Team</p>
+        <p>Thanks,<br />Book Club</p>
         <p>
           For enquiries:
           <a href="mailto:enquiry@example.com">enquiry@example.com</a>
