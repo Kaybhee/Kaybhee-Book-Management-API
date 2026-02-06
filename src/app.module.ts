@@ -9,6 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './Entity/db.userEntity';
 import { BookModule } from './book/book.module';
 import { Books } from './Entity/db.bookEntity';
+// import { BookBorrowController } from './book-borrow/book-borrow.controller';
+// import { BookBorrowService } from './book-borrow/book-borrow.service';
+// import { BookBorrowModule } from './book-borrow/book-borrow.module';
+import { Borrow } from './Entity/db.borrowEntity';
 
 @Module({
   imports: [UsersModule,
@@ -35,7 +39,7 @@ import { Books } from './Entity/db.bookEntity';
         password : config.get<string>('DB_PASSWORD'),
         username : config.get<string>('DB_USERNAME'),
         database : config.get<string>('DB_NAME'),
-        entities : [User, Books],
+        entities : [User, Books, Borrow],
         synchronize : true
       })
     }),
