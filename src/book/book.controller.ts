@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Query, HttpStatus, Post, UseGuards, DefaultValuePipe, ParseIntPipe, Put, Param, Req } from '@nestjs/common';
+import { Body, Controller, Get, Query, HttpStatus, Post, UseGuards, DefaultValuePipe, ParseIntPipe, Put, Param, Req, NotFoundException } from '@nestjs/common';
 import { BookCreationDto } from './book.dto/books.dto';
 import { AuthGuard } from 'src/users/auth.guard';
 import { RolesGuard } from 'src/users/Roles/role.guard';
@@ -10,6 +10,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { Books } from 'src/Entity/db.bookEntity';
 import { updateBookContentDto } from './book.dto/updateBook.dto';
 import { BorrowBooksDto } from './book.dto/borrow.book.dto';
+import { ReturnBookDto } from './book.dto/return.book.dto';
 
 
 @Controller('book')
@@ -75,10 +76,16 @@ async borrowBook(@Req() req, @Body() borrowingBooks: BorrowBooksDto): Promise<Bo
         }
 }
 
-@Post()
+@Post('return')
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.USER)
-async returnBook(@Req() id: number) {
-    const _returned = await this.returnBook(id)
+async returnBook(@Body() returnBookDto: ReturnBookDto) {
+    const _returned = await this.booksCreation.returnBook(returnBookDto.borrowId)
+    return {
+        status: HttpStatus.OK,
+        message: "Book successfully returned",
+        data: _returned
+    }
 }
+
 }
